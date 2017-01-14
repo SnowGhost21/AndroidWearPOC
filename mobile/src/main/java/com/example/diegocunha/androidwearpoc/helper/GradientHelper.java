@@ -5,6 +5,7 @@ import android.graphics.Color;
 import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -36,13 +37,13 @@ public class GradientHelper {
 
     public static TimerColor fromColor(int hour) {
         int position = 0;
-        for (int i = 0; i < allColors().size(); i++) {
-            if(allColors().get(i).getHour() <= hour){
-                position = i;
+        for (TimerColor timeColor : allColors()) {
+            if (timeColor.getHour() <= hour) {
+                position++;
             }
         }
 
-        TimerColor color = allColors().get(position);
+        TimerColor color = allColors().get(position > 0 ? position - 1 : position);
 
         return color;
     }
@@ -52,23 +53,25 @@ public class GradientHelper {
 
         for (int i = 0; i < allColors().size(); i++) {
             if (allColors().get(i).getHour() == color.getHour()) {
-                int toIndex = (i  + 1) % allColors().size();
-                return allColors().get(toIndex);
+                int toIndex = (i + 1) % allColors().size();
+                TimerColor color1 = allColors().get(toIndex);
+                return color1;
             }
         }
         return null;
     }
 
 
-    public static TimerColor nextColor(int hour){
+    public static TimerColor nextColor(int hour) {
         TimerColor color = toColor(hour);
 
         for (int i = 0; i < allColors().size(); i++) {
 
-            if(color != null){
+            if (color != null) {
                 if (allColors().get(i).getHour() == color.getHour()) {
-                    int toIndex = (i  + 1) % allColors().size();
-                    return allColors().get(toIndex);
+                    int toIndex = (i + 1) % allColors().size();
+                    TimerColor color1 = allColors().get(toIndex);
+                    return color1;
                 }
             }
 
@@ -76,9 +79,10 @@ public class GradientHelper {
         return null;
     }
 
-    private static List<RGBColor> rgbColorForTime(Date date){
-        int hour = date.getHours();
-        int minute = date.getMinutes();
+    private static List<RGBColor> rgbColorForTime() {
+        Calendar calendar = Calendar.getInstance();
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+        int minute = calendar.get(Calendar.MINUTE);
 
         TimerColor fromColor = fromColor(hour);
         TimerColor toColor = toColor(hour);
@@ -87,9 +91,9 @@ public class GradientHelper {
 
         int differenceHour = hour - fromColor.getHour();
         int differenceMinutes = differenceHour * 60;
-        double targetMinute = (double) ((minute + differenceMinutes) / 120);
+        double targetMinute = (double) (minute + differenceMinutes) / 120;
 
-        List<RGBColor> colors=  new ArrayList<>();
+        List<RGBColor> colors = new ArrayList<>();
         colors.add(interpolate(fromColor.getRgb(), toColor.getRgb(), targetMinute));
         colors.add(interpolate(toColor.getRgb(), nextColor.getRgb(), targetMinute));
 
@@ -98,22 +102,34 @@ public class GradientHelper {
     }
 
 
-    private static RGBColor interpolate(RGBColor fromRGB,RGBColor toRGB, double constant){
-        int red = (int) ((fromRGB.getRed() + (toRGB.getRed() - fromRGB.getRed())) * constant);
-        int green = (int) ((fromRGB.getGreen() + (toRGB.getGreen() - fromRGB.getGreen())) * constant);
-        int blue = (int) ((fromRGB.getBlue() + (toRGB.getBlue() - fromRGB.getBlue())) * constant);
+    private static RGBColor interpolate(RGBColor fromRGB, RGBColor toRGB, double constant) {
+
+        if (constant == 0) {
+
+            return new RGBColor(fromRGB.getRed(), fromRGB.getGreen(), fromRGB.getBlue());
+        }
+
+        int partRed = toRGB.getRed() - fromRGB.getRed();
+        int red = (int) ((fromRGB.getRed() + partRed) * constant);
+
+        int partBlue = toRGB.getBlue() - fromRGB.getBlue();
+        int blue = (int) ((fromRGB.getBlue() + partBlue) * constant);
+
+        int partGreen = toRGB.getGreen() - fromRGB.getGreen();
+        int green = (int) ((fromRGB.getGreen() + partGreen) * constant);
+
 
         return new RGBColor(red, green, blue);
     }
 
-    public static List<Integer> colorsForTime(Date date){
-        List<RGBColor> colors = rgbColorForTime(date);
-        RGBColor colorOne = new RGBColor(100, 179, 244);
-        RGBColor colorTwo = new RGBColor(194, 229, 156);
+    public static int[] colorsForTime() {
+        List<RGBColor> colors = rgbColorForTime();
+        RGBColor colorOne = colors.get(0);
+        RGBColor colorTwo = colors.get(1);
 
 
-       return Arrays.asList(Color.rgb(colorOne.getRed(), colorOne.getGreen(), colorOne.getBlue()),
-               Color.rgb(colorTwo.getRed(), colorTwo.getGreen(), colorTwo.getBlue()));
+        return new int[]{Color.rgb(colorOne.getRed(), colorOne.getGreen(), colorOne.getBlue()),
+                Color.rgb(colorTwo.getRed(), colorTwo.getGreen(), colorTwo.getBlue())};
 
     }
 }
