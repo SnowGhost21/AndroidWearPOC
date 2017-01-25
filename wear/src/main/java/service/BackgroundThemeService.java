@@ -1,14 +1,13 @@
-package com.example.diegocunha.androidwearpoc.service;
+package service;
 
 import android.app.IntentService;
 import android.content.Intent;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.example.diegocunha.androidwearpoc.helper.GradientHelper;
-
 import java.util.Arrays;
-import java.util.List;
+
+import helper.GradientHelper;
 
 /**
  * Created by snowghost on 13/01/17.

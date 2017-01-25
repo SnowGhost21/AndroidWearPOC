@@ -1,12 +1,10 @@
-package com.example.diegocunha.androidwearpoc.helper;
+package helper;
 
 import android.graphics.Color;
 
-import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 /**

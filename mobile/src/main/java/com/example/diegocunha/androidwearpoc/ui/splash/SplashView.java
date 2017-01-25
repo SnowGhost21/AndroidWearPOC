@@ -5,4 +5,8 @@ package com.example.diegocunha.androidwearpoc.ui.splash;
  */
 
 public interface SplashView {
+
+    void onConnectionSuccesfull(String message);
+    void onConnectionSuspend(String message);
+    void onConnectionFailed(String message);
 }
